@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คุมห้อง — IT Snake &amp; Ladder Class</title>
+<meta name="description" content="หน้าจอควบคุมห้องเล่นบันไดงูไอทีสำหรับครูผู้สอน">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/theme.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: { ink:'#0f172a', deep:'#080d1a', cyan:'#00f3ff', purple:'#9d4edd', lime:'#00ff88', amber:'#ffc247', rose:'#ff4d6d' },
+      fontFamily: { sans:['Prompt','Noto Sans Thai','system-ui','sans-serif'], mono:['JetBrains Mono','monospace'] }
+    } }
+  };
+</script>
+<style>
+  .tile-ico { font-size: 1.7rem; }
+  .countdown { transition: color .3s ease; }
+  .countdown.low { color: var(--red); animation: pulse 1s ease-in-out infinite; }
+  .feed-item { display:flex; gap:8px; align-items:flex-start; font-size:.82rem; line-height:1.45; }
+  .feed-item .dotp { margin-top:6px; }
+  .claim-row { border-color: rgba(255,194,71,.45); }
+  @media (max-width:900px){ .ctl-grid { grid-template-columns:1fr !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HEADER ============ -->
+  <header class="glass sticky top-0 z-30" style="border-radius:0;border-left:none;border-right:none;border-top:none;padding:10px 16px;">
+    <div class="wrap !p-0 row-between wrapy">
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" id="btnBack" title="กลับไปหน้าหลัก">←</button>
+        <div>
+          <div class="row">
+            <div class="avatar" style="background:linear-gradient(150deg,#00f3ff,#9d4edd)">🎮</div>
+            <b class="neon-cyan" id="roomName">ห้องเรียน</b>
+            <span class="chip" id="statusChip">—</span>
+          </div>
+          <div class="tiny muted" style="margin-top:2px">
+            รหัสห้อง <b class="mono neon-purple" id="joinCode">—</b>
+            · <span id="roundInfo">รอบ 0/0</span>
+          </div>
+        </div>
+      </div>
+      <div class="row wrapy">
+        <button class="btn btn-purple btn-sm" id="btnProjector" title="เปิดหน้าจอ Projector (เครื่องที่ต่อเครื่องฉาย)">📽️ หน้าจอ Projector</button>
+        <button class="btn btn-ghost btn-sm" id="btnExportJson" title="ส่งออกผลคะแนนเป็น JSON">⬇️ JSON</button>
+        <button class="btn btn-ghost btn-sm" id="btnExportCsv" title="ส่งออกผลคะแนนเป็น CSV (Excel)">⬇️ CSV</button>
+        <button class="btn btn-danger btn-sm" id="btnEnd" title="จบเกมและประกาศผล">🏁 จบเกม</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap ctl-grid grid" style="grid-template-columns:1.15fr .85fr;gap:16px;padding-top:18px">
+
+    <!-- ============ LEFT: เกม ============ -->
+    <section class="stack" style="gap:16px">
+      <div class="glass" id="flowPanel">
+        <div id="flowInner" class="center muted" style="padding:34px 10px">กำลังโหลดห้อง…</div>
+      </div>
+
+      <div class="glass">
+        <div class="row-between" style="margin-bottom:10px">
+          <div class="panel-title"><span class="dot"></span><span>📋 คำร้องขอเคลม (Claims)</span></div>
+          <button class="btn btn-cyan btn-sm hidden" id="btnAutoJudge">⚡ ตัดสินอัตโนมัติ</button>
+        </div>
+        <div id="claimList" class="stack" style="gap:8px">
+          <div class="empty"><div class="ico">📮</div><div>ยังไม่มีคำร้องขอจากนักเรียน<br><span class="tiny">นักเรียนจะกด "เคลม" ที่หน้าการ์ดของตัวเอง</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RIGHT: นักเรียน ============ -->
+    <section class="stack" style="gap:16px">
+      <div class="glass">
+        <div class="row-between" style="margin-bottom:10px">
+          <div class="panel-title"><span class="dot"></span><span>👥 รายชื่อนักเรียน</span></div>
+          <span class="chip chip-cyan" id="countPlayers">0 คน</span>
+        </div>
+        <div id="roster" class="stack" style="gap:6px"></div>
+        <div class="grid gap-3" style="grid-template-columns:1fr 1fr;margin-top:12px">
+          <button class="btn btn-green" id="btnStart">▶️ เริ่มเล่น</button>
+          <button class="btn btn-purple" id="btnDraw">🎲 สุ่มคำถามถัดไป</button>
+        </div>
+      </div>
+
+      <div class="glass">
+        <div class="panel-title" style="margin-bottom:10px"><span class="dot"></span><span>📜 เหตุการณ์ล่าสุด</span></div>
+        <div id="feed" class="stack scroll-y" style="gap:6px;max-height:230px"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="assets/js/dataset.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/game.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/sets.js"></script>
+<script src="assets/js/rooms.js"></script>
+<script src="assets/js/qr.js"></script>
+<script src="assets/js/control.js"></script>
+</body>
+</html>

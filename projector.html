@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projector — IT Snake &amp; Ladder Class</title>
+<meta name="description" content="หน้าจอฉาย (Projector) บันไดงูไอที — รหัสห้อง, วงล้อสุ่มคำถาม, กระดานรวม, อันดับสด">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📽️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/theme.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { ink:'#0f172a', deep:'#080d1a', cyan:'#00f3ff', purple:'#9d4edd', lime:'#00ff88', amber:'#ffc247', rose:'#ff4d6d' },
+    fontFamily: { sans:['Prompt','Noto Sans Thai','system-ui','sans-serif'], mono:['JetBrains Mono','monospace'] }
+  } } };
+</script>
+<style>
+  body.is-projector { background-image: radial-gradient(900px 620px at 14% -6%, rgba(0,243,255,.18), transparent 60%), radial-gradient(800px 600px at 96% 6%, rgba(157,78,221,.24), transparent 62%), linear-gradient(180deg,#0f172a,#080d1a); }
+  .qr-frame.projector canvas { width: clamp(150px, 16vw, 260px); height: clamp(150px, 16vw, 260px); }
+  .roulette-word { will-change: transform; }
+</style>
+</head>
+<body class="is-projector">
+<div class="page">
+  <div class="proj-shell">
+
+    <!-- ====== TOP BAR ====== -->
+    <div class="proj-top">
+      <div class="row wrapy" style="min-width:0">
+        <div class="avatar" style="width:44px;height:44px;flex:0 0 44px;background:linear-gradient(150deg,#00f3ff,#9d4edd);font-size:1.4rem">🎮</div>
+        <div style="min-width:0">
+          <div class="proj-word-sm neon-cyan" id="projTitle">IT Snake &amp; Ladder Class</div>
+          <div class="tiny muted" id="projSub">บันไดงูไอที · Active Learning</div>
+        </div>
+        <span class="chip" id="projStatusChip" style="margin-left:4px">—</span>
+      </div>
+      <div class="row">
+        <span class="chip chip-green" id="onlineChip" title="นักเรียนที่อยู่ในห้อง">🟢 ออนไลน์ 0</span>
+        <span class="chip chip-cyan" id="roundChip">รอบ 0/0</span>
+      </div>
+    </div>
+
+    <!-- ====== LEFT: เวที + กระดาน ====== -->
+    <div class="proj-left">
+      <div class="glass" style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column">
+        <div class="proj-stage" id="stage">
+          <div id="stageInner" class="stack center" style="padding:14px">
+            <div class="tiny muted">กำลังโหลดห้อง…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass track-wrap" id="trackWrap" style="min-height:150px">
+        <div class="track" id="track"></div>
+        <div class="tiny muted center" style="padding-top:6px" id="trackLegend"></div>
+      </div>
+    </div>
+
+    <!-- ====== RIGHT: อันดับผู้เล่น ====== -->
+    <div class="proj-right">
+      <div class="glass" style="flex:1;display:flex;flex-direction:column;min-height:0">
+        <div class="panel-title" style="margin-bottom:10px"><span class="dot"></span><span>🏆 อันดับผู้เล่น</span></div>
+        <div class="stack scroll-y" id="leaderboard" style="gap:8px;flex:1"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/js/dataset.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/game.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/sets.js"></script>
+<script src="assets/js/rooms.js"></script>
+<script src="assets/js/qr.js"></script>
+<script src="assets/js/projector.js"></script>
+</body>
+</html>

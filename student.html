@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เข้าร่วมเกม — IT Snake &amp; Ladder Class</title>
+<meta name="description" content="หน้านักเรียน — เข้าร่วมห้องบันไดงูไอที เล่นผ่านมือถือหรือแท็บเล็ต">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/theme.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { ink:'#0f172a', deep:'#080d1a', cyan:'#00f3ff', purple:'#9d4edd', lime:'#00ff88', amber:'#ffc247', rose:'#ff4d6d' },
+    fontFamily: { sans:['Prompt','Noto Sans Thai','system-ui','sans-serif'], mono:['JetBrains Mono','monospace'] }
+  } } };
+</script>
+<style>
+  .board { grid-template-columns: repeat(4, 1fr); width: 100%; max-width: 520px; margin: 0 auto; }
+  .board.is3 { grid-template-columns: repeat(3, 1fr); max-width: 400px; }
+  .status-line { min-height: 1.7em; }
+  .my-chip { border-color: rgba(0,255,136,.5); background: rgba(0,255,136,.12); color: var(--green); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ================= JOIN ================= -->
+  <section id="viewJoin" class="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
+    <div class="login-orb" style="width:360px;height:360px;background:#00f3ff;top:-70px;right:-50px;"></div>
+    <div class="login-orb" style="width:320px;height:320px;background:#9d4edd;bottom:-80px;left:-40px;"></div>
+
+    <div class="glass glass-strong w-full max-w-md relative z-10 p-6 sm:p-8">
+      <div class="center stack" style="gap:8px">
+        <div class="hero-badge">🎮 เข้าร่วมเกมบันไดงูไอที</div>
+        <h1 class="text-xl sm:text-2xl font-bold title-grad leading-tight">IT Snake &amp; Ladder Class</h1>
+        <p class="muted sm">กรอกรหัสห้อง (จากจอ Projector ของครู) พร้อมชื่อตัวเอง</p>
+      </div>
+
+      <div class="stack mt-5" style="gap:13px">
+        <div class="field">
+          <label class="label" for="joinCodeInput">รหัสห้อง (Join Code)</label>
+          <input id="joinCodeInput" class="input input-lg code-input-big" maxlength="6" placeholder="เช่น 5QSB" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="label" for="joinNameInput">ชื่อของฉัน</label>
+          <input id="joinNameInput" class="input input-lg" maxlength="24" placeholder="ชื่อเล่น เช่น มุก / ต้น" autocomplete="name">
+        </div>
+        <div id="joinError" class="chip chip-red hidden"></div>
+        <button class="btn btn-cyan btn-lg btn-block" id="btnJoin">เข้าห้องเล่น 🚀</button>
+        <div class="divider my-3"></div>
+        <div class="tiny muted center">เลือกการ์ดจากความหมายที่ครูโชว์ แล้วกด "เคลม" ให้เร็วและถูกที่สุด!</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GAME ================= -->
+  <section id="viewGame" class="hidden">
+    <header class="glass sticky top-0 z-30" style="border-radius:0;border-left:none;border-right:none;border-top:none;padding:10px 14px;">
+      <div class="wrap !p-0 row-between wrapy" style="gap:8px">
+        <div class="row">
+          <div class="avatar" id="meAvatar" style="background:#00f3ff">?</div>
+          <div>
+            <div class="font-bold leading-tight" id="meName">ฉัน</div>
+            <div class="tiny muted">ห้อง <b class="mono neon-purple" id="meRoom">—</b> · รอบ <span id="meRound">0/0</span></div>
+          </div>
+        </div>
+        <div class="row wrapy">
+          <span class="chip my-chip" id="meScore" style="font-family:var(--font-mono);font-weight:700">0 คะแนน</span>
+          <span class="chip chip-cyan" id="meRank">อันดับ -</span>
+          <button class="btn btn-ghost btn-sm" id="btnLeave" title="กลับไปหน้าตั้งชื่อ">เปลี่ยนชื่อ</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap stack" style="gap:14px;padding-bottom:46px">
+      <!-- คำใบ้จากครู -->
+      <div class="glass" id="hintPanel">
+        <div id="hintInner" class="stack center" style="gap:8px;min-height:96px">
+          <div class="tiny muted">รอครูเริ่มเกม…</div>
+        </div>
+      </div>
+
+      <!-- การ์ดของฉัน -->
+      <div class="glass">
+        <div class="row-between" style="margin-bottom:10px">
+          <div class="panel-title"><span class="dot"></span><span>🗂️ การ์ดของฉัน</span></div>
+          <span class="chip" id="boardStateChip">🔒 รอเริ่ม</span>
+        </div>
+        <div class="board" id="board"></div>
+
+        <div class="grid gap-3" style="grid-template-columns:1fr auto;margin-top:14px;align-items:stretch">
+          <div class="row status-line sm" id="claimStatus" style="align-self:center"></div>
+          <button class="btn btn-green btn-lg" id="btnClaim" disabled>เคลม (ส่งคำตอบ) 🚀</button>
+        </div>
+      </div>
+
+      <!-- อันดับย่อ -->
+      <div class="glass">
+        <div class="panel-title" style="margin-bottom:8px"><span class="dot"></span><span>🏆 อันดับตอนนี้</span></div>
+        <div id="miniLb" class="stack" style="gap:5px"></div>
+      </div>
+    </main>
+  </section>
+</div>
+
+<script src="assets/js/dataset.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/game.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/sets.js"></script>
+<script src="assets/js/rooms.js"></script>
+<script src="assets/js/student.js"></script>
+</body>
+</html>

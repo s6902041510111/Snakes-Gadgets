@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Snake &amp; Ladder Class — ระบบกิจกรรมการเรียนรู้ Active Learning</title>
+<meta name="description" content="ระบบกิจกรรมการเรียนรู้แบบ Active Learning ธีมบันไดงูไอที สำหรับครูผู้สอนและนักเรียน">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/theme.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#0f172a', deep: '#080d1a', cyan: '#00f3ff', purple: '#9d4edd',
+          lime: '#00ff88', amber: '#ffc247', rose: '#ff4d6d'
+        },
+        fontFamily: { sans: ['Prompt', 'Noto Sans Thai', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
+      }
+    }
+  };
+</script>
+<style>
+  .set-card { transition: transform .18s ease, border-color .2s ease, box-shadow .2s ease; }
+  .set-card:hover { transform: translateY(-3px); border-color: rgba(0,243,255,.45); box-shadow: 0 16px 34px rgba(3,7,18,.5), 0 0 22px rgba(0,243,255,.18); }
+  .item-row input, .item-row select { font-size: .82rem; padding: 6px 9px; }
+  .size-opt, .pattern-opt { transition: all .16s ease; }
+  .size-opt.on, .pattern-opt.on { border-color: var(--cyan); background: rgba(0,243,255,.12); box-shadow: 0 0 0 1px rgba(0,243,255,.35) inset; color: #eafeff; }
+  .scroll-y { max-height: 46vh; }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- ======================= LOGIN ======================= -->
+  <section id="viewLogin" class="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
+    <div class="login-orb" style="width:420px;height:420px;background:#00f3ff;top:-80px;left:-60px;"></div>
+    <div class="login-orb" style="width:380px;height:380px;background:#9d4edd;bottom:-90px;right:-40px;"></div>
+    <div class="login-orb" style="width:300px;height:300px;background:#00ff88;top:44%;left:58%;opacity:.22"></div>
+
+    <div class="glass glass-strong w-full max-w-md relative z-10 p-7 sm:p-8">
+      <div class="center stack" style="gap:10px">
+        <div class="hero-badge">🐍 Active Learning Lab</div>
+        <h1 class="text-2xl sm:text-3xl font-bold title-grad leading-tight">IT Snake &amp; Ladder Class</h1>
+        <p class="muted sm">ระบบกิจกรรมการเรียนรู้แบบ Active Learning<br>ธีม “บันไดงูไอที” สำหรับครูผู้สอน</p>
+      </div>
+
+      <form id="loginForm" class="stack mt-6" style="gap:14px">
+        <div class="field">
+          <label class="label" for="loginUser">ชื่อผู้ใช้ (Username)</label>
+          <input id="loginUser" class="input input-lg" autocomplete="username" placeholder="กรอกชื่อผู้ใช้" required>
+        </div>
+        <div class="field">
+          <label class="label" for="loginPass">รหัสผ่าน (Password)</label>
+          <input id="loginPass" type="password" class="input input-lg" autocomplete="current-password" placeholder="กรอกรหัสผ่าน" required>
+        </div>
+        <div id="loginError" class="chip chip-red hidden"></div>
+        <button class="btn btn-cyan btn-lg btn-block" type="submit">เข้าสู่ระบบครูผู้สอน</button>
+      </form>
+
+      <div class="divider my-5"></div>
+      <div class="row-between sm">
+        <div class="tiny muted">ค่าเริ่มต้น: <b class="mono neon-cyan">Sathita</b> / <b class="mono neon-cyan">1234</b></div>
+        <a class="chip chip-cyan" href="student.html">🎮 หน้านักเรียน</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= DASHBOARD ======================= -->
+  <section id="viewApp" class="hidden">
+    <header class="glass sticky top-0 z-30" style="border-radius:0;border-left:none;border-right:none;border-top:none;padding:12px 16px;">
+      <div class="wrap !p-0 row-between">
+        <div class="row">
+          <div class="avatar" style="background:linear-gradient(160deg,#00f3ff,#9d4edd);font-size:1.3rem">🐍</div>
+          <div>
+            <div class="font-bold title-grad leading-tight">IT Snake &amp; Ladder Class</div>
+            <div class="tiny muted" id="helloTeacher">สวัสดีครู</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="chip chip-cyan hidden sm:inline-flex" id="storageChip" title="พื้นที่จัดเก็บข้อมูลในเบราว์เซอร์">💾 0 KB</span>
+          <button class="btn btn-ghost btn-sm" id="btnSettings" title="ตั้งค่าโปรไฟล์">⚙️ ตั้งค่า</button>
+          <button class="btn btn-danger btn-sm" id="btnLogout" title="ออกจากระบบ">ออก</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap stack" style="gap:18px">
+      <!-- stats -->
+      <div class="grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+        <div class="stat glass-soft"><div class="text-2xl">🗂️</div><div><div class="stat-num" id="statSets">0</div><div class="stat-label">ชุดกิจกรรม</div></div></div>
+        <div class="stat glass-soft"><div class="text-2xl">🎯</div><div><div class="stat-num" id="statTerms">0</div><div class="stat-label">อุปกรณ์ในชุด</div></div></div>
+        <div class="stat glass-soft"><div class="text-2xl">🚀</div><div><div class="stat-num" id="statSessions">0</div><div class="stat-label">ห้องที่เปิดเล่น</div></div></div>
+        <div class="stat glass-soft"><div class="text-2xl">👥</div><div><div class="stat-num" id="statPlayers">0</div><div class="stat-label">นักเรียนที่เข้าร่วม</div></div></div>
+      </div>
+
+      <!-- sets -->
+      <div class="glass">
+        <div class="row-between wrapy" style="margin-bottom:12px">
+          <div class="panel-title"><span class="dot"></span><span>ชุดกิจกรรม / ชุดคำศัพท์อุปกรณ์ไอที</span></div>
+          <div class="row wrapy">
+            <input id="searchSets" class="input" style="width:190px" placeholder="🔍 ค้นหาชุดหรืออุปกรณ์">
+            <button class="btn btn-ghost btn-sm" id="btnImportPreset">📥 เพิ่มชุดสำเร็จรูป</button>
+            <button class="btn btn-green btn-sm" id="btnNewSet">➕ สร้างชุดใหม่</button>
+          </div>
+        </div>
+        <div id="setsGrid" class="grid gap-3" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))"></div>
+      </div>
+
+      <!-- sessions -->
+      <div class="glass">
+        <div class="row-between" style="margin-bottom:12px">
+          <div class="panel-title"><span class="dot"></span><span>ประวัติการเล่น (คลิกเพื่อเปิดห้องควบคุม)</span></div>
+          <div class="row">
+            <button class="btn btn-ghost btn-sm" id="btnExportAll">⬇️ ส่งออกข้อมูลทั้งหมด</button>
+            <button class="btn btn-ghost btn-sm" id="btnImportData">⬆️ นำเข้าข้อมูล</button>
+            <input type="file" id="fileImport" accept="application/json,.json" class="hidden">
+          </div>
+        </div>
+        <div id="sessionsList" class="stack" style="gap:8px"></div>
+      </div>
+
+      <footer class="center tiny muted" style="padding:10px 0 26px">
+        <div>วิธีใช้: เปิดหน้าจอ Projector บนเครื่องที่ต่อเครื่องฉาย → นักเรียนสแกน QR / เปิดหน้านักเรียนและกรอกรหัสห้อง</div>
+        <div class="mt-1">ระบบซิงค์ข้อมูลด้วย LocalStorage + BroadcastChannel (ทำงานในเครื่องเดียวหลายหน้าต่าง) — รองรับการต่อยอดเชื่อม Vercel KV/Blob</div>
+      </footer>
+    </main>
+  </section>
+</div>
+
+<script src="assets/js/dataset.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/game.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/sets.js"></script>
+<script src="assets/js/rooms.js"></script>
+<script src="assets/js/qr.js"></script>
+<script src="assets/js/teacher.js"></script>
+</body>
+</html>

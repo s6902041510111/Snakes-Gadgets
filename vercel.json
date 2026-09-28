@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "description": "IT Snake & Ladder Class — static site (HTML5/CSS/vanilla JS). Data lives in browser storage; localStorage envelopes map 1:1 to Vercel Kv/Blob for the future realtime/relay mode.",
+  "framework": null,
+  "buildCommand": "",
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/assets/js/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, must-revalidate" }
+      ]
+    }
+  ]
+}
